@@ -1,0 +1,9 @@
+{
+  "name": "gcc-room-division",
+  "version": "1.0.0",
+  "description": "Room division system for GCC Field Research 2026",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  }
+}
