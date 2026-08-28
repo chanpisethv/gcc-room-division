@@ -1,0 +1,833 @@
+.rd-app * {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: 'MiSansKhmer', 'Inter', sans-serif;
+}
+
+.rd-app {
+  min-height: 100vh;
+  font-family: 'MiSansKhmer', 'Inter', sans-serif;
+  background: linear-gradient(45deg, #f2e9c2 0%, #f7e7b0 20%, #d4edc9 50%, #b5e6f5 80%);
+  background-attachment: fixed;
+  padding: 28px 20px 60px;
+  color: #0b2b3d;
+}
+.rd-app .app { max-width: 1240px; margin: 0 auto; }
+
+/* Brand bar */
+.rd-app .brand-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-bottom: 28px;
+  background: rgba(255,255,255,0.45);
+  backdrop-filter: blur(8px);
+  border-radius: 32px;
+  padding: 16px 28px;
+  border: 1px solid rgba(255,255,255,0.7);
+  box-shadow: 0 8px 28px -10px rgba(11,43,61,0.2);
+  position: relative;
+  z-index: 1000;
+}
+.rd-app .brand { display: flex; align-items: center; gap: 14px; }
+.rd-app .brand-icon {
+  width: 48px; height: 48px;
+  background: #0b3d5c;
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 6px 14px rgba(11,61,92,0.25);
+}
+.rd-app .brand-icon svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 1.8; fill: none; }
+.rd-app .brand h1 {
+  font-family: 'MiSansKhmer', 'Space Grotesk', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.rd-app .brand .sub {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #4d6a78;
+  margin-top: 2px;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+
+.rd-app .admin-btn-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.rd-app .admin-btn {
+  background: #0b3d5c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(11,61,92,0.2);
+}
+.rd-app .admin-btn:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124,58,237,0.3);
+}
+.rd-app .admin-btn.active {
+  background: #c73832;
+}
+.rd-app .admin-btn.active:hover {
+  background: #b0302a;
+}
+
+.rd-app .manage-btn {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+}
+.rd-app .manage-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124,58,237,0.4);
+}
+.rd-app .manage-btn-small {
+  margin-top: 10px;
+  width: 100%;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.rd-app .manage-btn-small:hover {
+  background: #6d28d9;
+}
+
+/* Admin panel */
+.rd-app .admin-panel {
+  display: none;
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  min-width: 320px;
+  z-index: 9999;
+  margin-top: 0;
+}
+.rd-app .admin-panel.show {
+  display: block;
+  animation: rd-slideDown 0.3s ease;
+}
+@keyframes rd-slideDown {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.rd-app .admin-panel.show::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.15);
+  z-index: -1;
+  animation: rd-fadeIn 0.3s ease;
+}
+@keyframes rd-fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.rd-app .admin-panel h3 {
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.95rem;
+  margin-bottom: 14px;
+  color: #0b2b3d;
+}
+.rd-app .admin-panel input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid rgba(11,43,61,0.12);
+  border-radius: 10px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+.rd-app .admin-panel input:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+.rd-app .admin-panel .btn-group {
+  display: flex;
+  gap: 8px;
+}
+.rd-app .admin-panel .btn-group button {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rd-app .admin-panel .login-btn {
+  background: #7c3aed;
+  color: white;
+}
+.rd-app .admin-panel .login-btn:hover {
+  background: #6d28d9;
+}
+.rd-app .admin-panel .reset-btn {
+  background: #c73832;
+  color: white;
+}
+.rd-app .admin-panel .reset-btn:hover {
+  background: #b0302a;
+}
+.rd-app .admin-panel .status {
+  display: block;
+  margin-top: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 20px;
+  text-align: center;
+}
+.rd-app .admin-panel .status.active {
+  background: #e4f7ea;
+  color: #16a34a;
+}
+.rd-app .admin-panel .status.inactive {
+  background: #fde3e1;
+  color: #c73832;
+}
+.rd-app .admin-panel .close-btn {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #4d6a78;
+  z-index: 10000;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .admin-panel .close-btn:hover {
+  background: rgba(0,0,0,0.05);
+  color: #0b2b3d;
+}
+
+.rd-app .stats {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.rd-app .stat-pill {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 40px;
+  padding: 8px 18px;
+  border: 1px solid rgba(255,255,255,0.9);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+  text-align: center;
+  min-width: 70px;
+}
+.rd-app .stat-pill .num {
+  font-family: 'MiSansKhmer', 'Space Grotesk', sans-serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: block;
+  line-height: 1.2;
+}
+.rd-app .stat-pill .lbl { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; color: #4d6a78; font-weight: 600; }
+.rd-app .stat-pill.green .num { color: #16a34a; }
+.rd-app .stat-pill.red .num { color: #c73832; }
+.rd-app .stat-pill.orange .num { color: #e08900; }
+
+/* Rooms grid */
+.rd-app .rooms-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+  margin-bottom: 32px;
+}
+
+.rd-app .section-title {
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 28px 0 14px 4px;
+}
+.rd-app .section-title .dash { width: 28px; height: 4px; background: #0b3d5c; border-radius: 4px; }
+
+.rd-app .room-card {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.85);
+  border-radius: 22px;
+  padding: 18px 16px 16px;
+  box-shadow: 0 8px 28px -12px rgba(11,43,61,0.2);
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1), box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+.rd-app .room-card:hover { transform: translateY(-5px); box-shadow: 0 16px 34px -14px rgba(11,43,61,0.3); }
+.rd-app .room-card.over-capacity {
+  border: 2px solid #c73832;
+}
+.rd-app .room-card.over-capacity .stripe {
+  background: repeating-linear-gradient(90deg, #c73832 0 6px, #b0302a 6px 12px) !important;
+}
+
+.rd-app .stripe {
+  position: absolute; top: 0; left: 0; right: 0; height: 7px;
+  background: #0b3d5c;
+}
+.rd-app .room-card[data-state="available"] .stripe { background: repeating-linear-gradient(90deg, #16a34a 0 6px, #1a9c4a 6px 12px); }
+.rd-app .room-card[data-state="limited"] .stripe { background: repeating-linear-gradient(90deg, #e08900 0 6px, #c97a00 6px 12px); }
+.rd-app .room-card[data-state="full"] .stripe { background: repeating-linear-gradient(90deg, #c73832 0 6px, #b0302a 6px 12px); }
+
+.rd-app .room-head {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 10px 0 8px;
+  flex-wrap: wrap;
+}
+.rd-app .room-eyebrow { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: #4d6a78; font-weight: 700; }
+.rd-app .room-num {
+  font-family: 'MiSansKhmer', 'Space Grotesk', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.rd-app .room-type {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: rgba(11,43,61,0.07);
+  padding: 2px 10px;
+  border-radius: 40px;
+  margin-left: 6px;
+  letter-spacing: 0.02em;
+}
+.rd-app .room-badge {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 12px;
+  border-radius: 40px;
+  background: #e4f7ea;
+  color: #16a34a;
+}
+.rd-app .room-card[data-state="limited"] .room-badge { background: #fff3dc; color: #e08900; }
+.rd-app .room-card[data-state="full"] .room-badge { background: #fde3e1; color: #c73832; }
+.rd-app .room-card.over-capacity .room-badge { background: #fde3e1; color: #c73832; }
+
+.rd-app .occupant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 60px;
+  margin: 10px 0 10px;
+}
+.rd-app .occupant-chip {
+  background: rgba(255,255,255,0.8);
+  border: 1px solid rgba(11,43,61,0.06);
+  border-radius: 12px;
+  padding: 5px 10px 5px 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .occupant-chip .sub {
+  font-weight: 400;
+  font-size: 0.62rem;
+  color: #4d6a78;
+  margin-left: auto;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .occupant-chip .remove-btn {
+  background: none;
+  border: none;
+  color: #c73832;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0 4px;
+  border-radius: 6px;
+  transition: background 0.2s, transform 0.15s;
+  line-height: 1;
+  font-weight: 700;
+  opacity: 0.6;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .occupant-chip .remove-btn:hover {
+  background: rgba(199,56,50,0.12);
+  opacity: 1;
+  transform: scale(1.15);
+}
+.rd-app .occupant-chip .remove-btn.admin-mode {
+  opacity: 1;
+}
+.rd-app .avatar {
+  width: 22px; height: 22px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.6rem; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .slot-empty {
+  border: 1.5px dashed rgba(11,43,61,0.2);
+  border-radius: 12px;
+  padding: 5px 10px;
+  font-size: 0.7rem;
+  color: rgba(11,43,61,0.3);
+  font-style: italic;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .capacity-track {
+  height: 6px; border-radius: 6px; background: rgba(11,43,61,0.08); overflow: hidden;
+}
+.rd-app .capacity-fill {
+  height: 100%; border-radius: 6px;
+  background: #16a34a;
+  transition: width 0.4s ease;
+}
+.rd-app .room-card[data-state="limited"] .capacity-fill { background: #e08900; }
+.rd-app .room-card[data-state="full"] .capacity-fill { background: #c73832; }
+.rd-app .room-card.over-capacity .capacity-fill { background: #c73832; }
+
+/* Room Manager */
+.rd-app .room-manager-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: rd-fadeIn 0.3s ease;
+}
+.rd-app .room-manager-panel {
+  background: white;
+  border-radius: 24px;
+  padding: 30px;
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: rd-slideDown 0.3s ease;
+}
+.rd-app .room-manager-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f0f0;
+}
+.rd-app .room-manager-header h3 {
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 1.3rem;
+  color: #0b2b3d;
+}
+.rd-app .room-manager-stats {
+  display: flex;
+  gap: 20px;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  color: #4d6a78;
+}
+.rd-app .room-manager-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.rd-app .room-config-item {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 12px 16px;
+  border: 1px solid #e9ecef;
+  transition: all 0.2s;
+}
+.rd-app .room-config-item:hover {
+  background: #f1f3f4;
+}
+.rd-app .room-config-display {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.rd-app .room-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.rd-app .room-id {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0b3d5c;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .room-type-label {
+  background: #e9ecef;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .room-capacity {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4d6a78;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .room-gender {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: #7c3aed20;
+  color: #7c3aed;
+}
+.rd-app .room-type-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: #0b3d5c20;
+  color: #0b3d5c;
+}
+.rd-app .room-actions {
+  display: flex;
+  gap: 8px;
+}
+.rd-app .room-actions button {
+  border: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+.rd-app .edit-btn {
+  background: #7c3aed20;
+  color: #7c3aed;
+}
+.rd-app .edit-btn:hover {
+  background: #7c3aed40;
+}
+.rd-app .delete-btn {
+  background: #c7383220;
+  color: #c73832;
+}
+.rd-app .delete-btn:hover {
+  background: #c7383240;
+}
+.rd-app .room-edit-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px 0;
+}
+.rd-app .edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rd-app .edit-field label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #4d6a78;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rd-app .edit-field input,
+.rd-app .edit-field select {
+  padding: 6px 10px;
+  border: 1.5px solid #e9ecef;
+  border-radius: 8px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.85rem;
+}
+.rd-app .edit-field input:focus,
+.rd-app .edit-field select:focus {
+  outline: none;
+  border-color: #7c3aed;
+}
+.rd-app .edit-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+.rd-app .edit-actions button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rd-app .save-btn {
+  background: #16a34a;
+  color: white;
+}
+.rd-app .save-btn:hover {
+  background: #15803d;
+}
+.rd-app .cancel-btn {
+  background: #e9ecef;
+  color: #4d6a78;
+}
+.rd-app .cancel-btn:hover {
+  background: #dee2e6;
+}
+.rd-app .room-manager-footer {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 2px solid #f0f0f0;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+.rd-app .add-room-btn {
+  background: #0b3d5c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rd-app .add-room-btn:hover {
+  background: #0a3450;
+  transform: translateY(-2px);
+}
+.rd-app .save-config-btn {
+  background: #7c3aed;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rd-app .save-config-btn:hover {
+  background: #6d28d9;
+  transform: translateY(-2px);
+}
+
+/* Check-in console */
+.rd-app .console {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 28px;
+  padding: 28px 30px;
+  box-shadow: 0 8px 28px -12px rgba(11,43,61,0.2);
+  position: relative;
+  z-index: 1;
+}
+.rd-app .console-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+@media (max-width: 640px) { .rd-app .console-grid { grid-template-columns: 1fr; } }
+
+.rd-app .field label {
+  display: block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: #4d6a78; margin-bottom: 4px;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app select {
+  width: 100%;
+  appearance: none;
+  background: #fff url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" stroke="%230b3d5c" stroke-width="2"><path d="M2 4l5 5 5-5"/></svg>') no-repeat right 14px center;
+  border: 1.5px solid rgba(11,43,61,0.12);
+  border-radius: 14px;
+  padding: 12px 38px 12px 16px;
+  font-family: 'MiSansKhmer', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0b2b3d;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rd-app select:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 4px rgba(124,58,237,0.15); }
+.rd-app select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.rd-app #submitBtn {
+  background: #0b3d5c;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 12px 30px;
+  font-family: 'MiSansKhmer', 'Space Grotesk', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px -6px rgba(11,61,92,0.5);
+  transition: transform 0.15s, box-shadow 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.rd-app #submitBtn:hover { background: #7c3aed; box-shadow: 0 8px 22px -6px rgba(124,58,237,0.5); transform: translateY(-2px); }
+.rd-app #submitBtn:active { transform: scale(0.96); }
+.rd-app #submitBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.rd-app #feedback {
+  margin-top: 18px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'MiSansKhmer', sans-serif;
+  animation: rd-fadeUp 0.3s ease;
+}
+@keyframes rd-fadeUp { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: translateY(0); } }
+.rd-app #feedback.success { background: #e4f7ea; color: #136a3a; }
+.rd-app #feedback.error { background: #fde3e1; color: #a4302b; }
+.rd-app #feedback.warning { background: #fff3dc; color: #e08900; }
+
+.rd-app .override-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4d6a78;
+  font-family: 'MiSansKhmer', sans-serif;
+}
+.rd-app .override-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #c73832;
+}
+.rd-app .override-toggle label {
+  cursor: pointer;
+}
+
+.rd-app .force-badge {
+  font-size: 0.6rem;
+  background: #c73832;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 6px;
+  font-weight: 700;
+  animation: rd-pulse-badge 1.5s infinite;
+}
+@keyframes rd-pulse-badge {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.rd-app footer {
+  text-align: center; margin-top: 30px; font-size: 0.7rem; color: #4d6a78; font-weight: 500;
+  font-family: 'MiSansKhmer', sans-serif;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .rd-app .brand h1 { font-size: 1.2rem; }
+  .rd-app .admin-panel {
+    right: 0;
+    left: 0;
+    min-width: auto;
+    top: calc(100% + 8px);
+  }
+  .rd-app .brand-bar {
+    padding: 12px 16px;
+  }
+  .rd-app .room-manager-panel {
+    padding: 16px;
+    max-height: 95vh;
+  }
+  .rd-app .room-edit-form {
+    grid-template-columns: 1fr;
+  }
+  .rd-app .room-info {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .rd-app .room-config-display {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .rd-app .room-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
