@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GCC FIELD RESEARCH 2026 · Room Division</title>
   <style>
     @font-face {
@@ -10,33 +10,881 @@
       src: local('MiSansKhmer-Regular'), local('MiSansKhmer Regular');
       font-weight: 400;
       font-style: normal;
-      font-display: swap;
     }
-    @font-face {
-      font-family: 'MiSansKhmer';
-      src: local('MiSansKhmer-Semibold'), local('MiSansKhmer Semibold');
-      font-weight: 600;
-      font-style: normal;
-      font-display: swap;
-    }
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; margin: 0; }
     body {
       font-family: 'MiSansKhmer', 'Inter', sans-serif;
       background: linear-gradient(45deg, #f2e9c2 0%, #f7e7b0 20%, #d4edc9 50%, #b5e6f5 80%);
-      background-attachment: fixed;
       min-height: 100vh;
+      padding: 20px;
+      color: #0b2b3d;
     }
-    #root {
-      min-height: 100vh;
-      padding: 28px 20px 60px;
+    .app { max-width: 1200px; margin: 0 auto; }
+    
+    .header {
+      background: rgba(255,255,255,0.45);
+      backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 16px 24px;
+      margin-bottom: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      border: 1px solid rgba(255,255,255,0.7);
+    }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand-icon {
+      width: 48px; height: 48px;
+      background: #0b3d5c;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-icon svg { width: 26px; height: 26px; stroke: #fff; stroke-width: 1.8; fill: none; }
+    .brand h1 { font-size: 1.4rem; font-weight: 600; }
+    .brand .sub { font-size: 0.65rem; color: #4d6a78; }
+    
+    .stats { display: flex; gap: 8px; flex-wrap: wrap; }
+    .stat-pill {
+      background: rgba(255,255,255,0.7);
+      border-radius: 40px;
+      padding: 6px 14px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.9);
+      min-width: 60px;
+    }
+    .stat-pill .num { font-size: 1rem; font-weight: 700; display: block; }
+    .stat-pill .lbl { font-size: 0.5rem; text-transform: uppercase; color: #4d6a78; }
+    .stat-pill.green .num { color: #16a34a; }
+    .stat-pill.red .num { color: #c73832; }
+    .stat-pill.orange .num { color: #e08900; }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 24px 0 12px;
+    }
+    .section-title .dash { width: 24px; height: 4px; background: #0b3d5c; border-radius: 4px; }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .room-card {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.85);
+      border-radius: 20px;
+      padding: 14px;
+      box-shadow: 0 8px 28px -12px rgba(11,43,61,0.2);
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .room-card:hover { transform: translateY(-3px); }
+    .room-card .stripe {
+      position: absolute; top: 0; left: 0; right: 0; height: 5px;
+      background: #0b3d5c;
+    }
+    .room-card .room-head {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin: 8px 0 6px;
+      flex-wrap: wrap;
+    }
+    .room-card .room-num {
+      font-size: 1.3rem;
+      font-weight: 700;
+    }
+    .room-card .room-type {
+      font-size: 0.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(11,43,61,0.07);
+      padding: 2px 8px;
+      border-radius: 40px;
+    }
+    .room-card .room-badge {
+      margin-left: auto;
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 40px;
+      background: #e4f7ea;
+      color: #16a34a;
+    }
+    .occupant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 40px;
+      margin: 6px 0;
+    }
+    .occupant-chip {
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(11,43,61,0.06);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.65rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .occupant-chip .sub {
+      font-size: 0.5rem;
+      color: #4d6a78;
+      margin-left: auto;
+    }
+    .occupant-chip .remove-btn {
+      background: none;
+      border: none;
+      color: #c73832;
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 0 4px;
+      opacity: 0.5;
+    }
+    .occupant-chip .remove-btn:hover { opacity: 1; }
+    .slot-empty {
+      border: 1.5px dashed rgba(11,43,61,0.2);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.6rem;
+      color: rgba(11,43,61,0.3);
+      font-style: italic;
+    }
+    .capacity-track {
+      height: 4px;
+      border-radius: 6px;
+      background: rgba(11,43,61,0.08);
+      overflow: hidden;
+    }
+    .capacity-fill {
+      height: 100%;
+      border-radius: 6px;
+      background: #16a34a;
+      transition: width 0.4s ease;
+    }
+    .over-capacity { border: 2px solid #c73832; }
+    .force-badge {
+      font-size: 0.5rem;
+      background: #c73832;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 4px;
+      font-weight: 700;
+    }
+
+    .console {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.9);
+      border-radius: 24px;
+      padding: 20px 24px;
+      box-shadow: 0 8px 28px -12px rgba(11,43,61,0.2);
+    }
+    .console-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+    @media (max-width: 640px) { .console-grid { grid-template-columns: 1fr; } }
+
+    .field label {
+      display: block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #4d6a78;
+      margin-bottom: 3px;
+    }
+    select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid rgba(11,43,61,0.12);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #0b2b3d;
+      background: #fff;
+      cursor: pointer;
+      appearance: none;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" stroke="%230b3d5c" stroke-width="2"><path d="M2 4l4 4 4-4"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    select:focus { outline: none; border-color: #7c3aed; }
+    select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: #0b3d5c;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-primary:hover { background: #7c3aed; transform: translateY(-2px); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .admin-btn {
+      background: #0b3d5c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .admin-btn:hover { background: #7c3aed; }
+    .admin-btn.active { background: #c73832; }
+
+    .override-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #4d6a78;
+    }
+    .override-toggle input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #c73832;
+    }
+
+    #feedback {
+      margin-top: 14px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: none;
+    }
+    #feedback.show { display: block; }
+    #feedback.success { background: #e4f7ea; color: #136a3a; }
+    #feedback.error { background: #fde3e1; color: #a4302b; }
+    #feedback.warning { background: #fff3dc; color: #e08900; }
+
+    footer {
+      text-align: center;
+      margin-top: 28px;
+      font-size: 0.6rem;
+      color: #4d6a78;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 8px;
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      min-width: 280px;
+      z-index: 1000;
+    }
+    .admin-panel.show { display: block; }
+    .admin-panel input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid rgba(11,43,61,0.12);
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-family: inherit;
+    }
+    .admin-panel .btn-group {
+      display: flex;
+      gap: 8px;
+    }
+    .admin-panel .btn-group button {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .admin-panel .login-btn { background: #7c3aed; color: white; }
+    .admin-panel .login-btn:hover { background: #6d28d9; }
+    .admin-panel .reset-btn { background: #c73832; color: white; }
+    .admin-panel .reset-btn:hover { background: #b0302a; }
+    .admin-panel .status {
+      display: block;
+      margin-top: 8px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
+      text-align: center;
+    }
+    .admin-panel .status.active { background: #e4f7ea; color: #16a34a; }
+    .admin-panel .status.inactive { background: #fde3e1; color: #c73832; }
+    .admin-panel .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #4d6a78;
+    }
+
+    .header { position: relative; }
+    .admin-btn-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .brand h1 { font-size: 1.1rem; }
+      .header { padding: 12px 16px; }
+      .admin-panel { right: 0; left: 0; min-width: auto; }
     }
   </style>
 </head>
 <body>
-  <div id="root"></div>
+<div class="app">
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" stroke="currentColor"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/><path d="M9 10h.01"/><path d="M15 10h.01"/></svg>
+      </div>
+      <div>
+        <h1>GCC FIELD RESEARCH 2026</h1>
+        <div class="sub">Hak Seng Guest House · Kampot Province</div>
+      </div>
+    </div>
+    <div class="admin-btn-container">
+      <div class="stats" id="stats"></div>
+      <button class="admin-btn" id="adminToggle">🔑 Admin</button>
+    </div>
+    <div class="admin-panel" id="adminPanel">
+      <button class="close-btn" id="closeAdmin">✕</button>
+      <h3 style="margin-bottom:10px;">🔐 Admin Control</h3>
+      <input type="password" id="adminPassword" placeholder="Enter admin password">
+      <div class="btn-group">
+        <button class="login-btn" id="loginBtn">Login</button>
+        <button class="reset-btn" id="resetBtn">🗑️ Reset</button>
+      </div>
+      <span class="status inactive" id="adminStatus">● Not logged in</span>
+    </div>
+  </div>
+
+  <div class="section-title"><span class="dash"></span> Room Overview</div>
+  <div class="rooms-grid" id="roomsGrid"></div>
+
+  <div class="section-title"><span class="dash"></span> Check‑In Desk</div>
+  <div class="console">
+    <div class="console-grid">
+      <div class="field">
+        <label>Select your name</label>
+        <select id="studentSelect"><option value="">Loading...</option></select>
+      </div>
+      <div class="field">
+        <label>Choose room</label>
+        <select id="roomSelect"><option value="">Loading...</option></select>
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <button class="btn-primary" id="assignBtn">Assign Room</button>
+        <div class="override-toggle">
+          <input type="checkbox" id="forceOverride">
+          <label for="forceOverride">⚠️ Force</label>
+        </div>
+      </div>
+    </div>
+    <div id="feedback"></div>
+  </div>
+  <footer>14 rooms · Various capacities · Click ✕ to remove (admin only)</footer>
+</div>
+
+<script>
+// ============================================================
+//  COMPLETE FRONTEND - WORKS WITH VERCEL API
+// ============================================================
+
+const API_BASE = '/api/room-division';
+const ADMIN_PASSWORD = 'admin2026';
+
+// Data
+let rooms = [];
+let peopleData = [];
+let roomConfig = [];
+let isAdmin = false;
+let adminPassword = '';
+let selectedStudent = '';
+let selectedRoom = '';
+let forceOverride = false;
+
+// Color palette for avatars
+const COLORS = ['#0b3d5c','#0891b2','#16a34a','#7c3aed','#c73832','#e08900','#0e7c7b','#6d4aff'];
+
+// ============================================================
+//  API CALLS
+// ============================================================
+
+async function loadRooms() {
+  try {
+    const res = await fetch(`${API_BASE}/api/rooms`);
+    rooms = await res.json();
+    renderAll();
+  } catch (e) {
+    console.error('Error loading rooms:', e);
+    // Use mock data if API fails
+    useMockData();
+  }
+}
+
+async function loadPeople() {
+  try {
+    const res = await fetch(`${API_BASE}/api/people`);
+    peopleData = await res.json();
+  } catch (e) {
+    console.error('Error loading people:', e);
+    useMockPeople();
+  }
+}
+
+async function loadConfig() {
+  try {
+    const res = await fetch(`${API_BASE}/api/config`);
+    roomConfig = (await res.json()).rooms || [];
+  } catch (e) {
+    console.error('Error loading config:', e);
+    useMockConfig();
+  }
+}
+
+// Mock data for testing (if API fails)
+function useMockData() {
+  rooms = [
+    { id: 1, occupants: [], capacity: 4 },
+    { id: 2, occupants: [], capacity: 4 },
+    { id: 3, occupants: [], capacity: 4 },
+    { id: 4, occupants: [], capacity: 4 },
+    { id: 5, occupants: [], capacity: 5 },
+    { id: 6, occupants: [], capacity: 4 },
+    { id: 7, occupants: [], capacity: 4 },
+    { id: 8, occupants: [], capacity: 4 },
+    { id: 9, occupants: [], capacity: 4 },
+    { id: 10, occupants: [], capacity: 4 },
+    { id: 11, occupants: [], capacity: 4 },
+    { id: 12, occupants: [], capacity: 4 },
+    { id: 13, occupants: [], capacity: 3 },
+    { id: 14, occupants: [], capacity: 4 }
+  ];
+  renderAll();
+}
+
+function useMockPeople() {
+  peopleData = [
+    { name: "Test Student 1", gender: "Male", role: "Student", type: "student" },
+    { name: "Test Student 2", gender: "Female", role: "Student", type: "student" },
+    { name: "Test Teacher 1", gender: "Male", role: "Teacher", type: "Teacher" }
+  ];
+}
+
+function useMockConfig() {
+  roomConfig = [
+    { id: 1, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+    { id: 2, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+    { id: 3, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+    { id: 4, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+    { id: 5, capacity: 5, type: 'Female Students (5 pax)', allowedGender: 'Female', allowedType: 'student' },
+    { id: 6, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+    { id: 7, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+    { id: 8, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+    { id: 9, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+    { id: 10, capacity: 4, type: 'Female Teachers', allowedGender: 'Female', allowedType: 'Teacher' },
+    { id: 11, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
+    { id: 12, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
+    { id: 13, capacity: 3, type: 'Female Teachers (3 pax)', allowedGender: 'Female', allowedType: 'Teacher' },
+    { id: 14, capacity: 4, type: 'Mixed Female', allowedGender: 'Female', allowedType: 'both' }
+  ];
+}
+
+// ============================================================
+//  HELPERS
+// ============================================================
+
+function getRoomConfig(roomId) {
+  return roomConfig.find(r => r.id === roomId);
+}
+
+function getPerson(name) {
+  return peopleData.find(p => p.name === name);
+}
+
+function isEligible(roomId, person) {
+  const room = rooms.find(r => r.id === roomId);
+  const config = getRoomConfig(roomId);
+  if (!room || !config || !person) return false;
+  const { gender, type } = person;
+  if (config.allowedType === 'both') {
+    if (gender !== 'Female') return false;
+  } else {
+    if (gender !== config.allowedGender) return false;
+    if (type !== config.allowedType) return false;
+  }
+  return room.occupants.length < room.capacity;
+}
+
+function getRoomState(room) {
+  const occ = room.occupants.length;
+  if (occ > room.capacity) return 'over';
+  if (occ >= room.capacity) return 'full';
+  if (occ === room.capacity - 1) return 'limited';
+  return 'available';
+}
+
+// ============================================================
+//  ACTIONS
+// ============================================================
+
+async function assignPerson(roomId, person, force = false) {
+  try {
+    const res = await fetch(`${API_BASE}/api/assign`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId, person, forceOverride: force })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      await loadRooms();
+      if (data.forceApplied) {
+        showFeedback('warning', `⚠️ ${person.name} assigned (OVERRIDE: ${data.room.occupants.length}/${data.room.capacity})`);
+      } else {
+        showFeedback('success', `${person.name} assigned to Room ${String(roomId).padStart(2, '0')}.`);
+      }
+      return true;
+    } else {
+      if (data.canForce) {
+        showFeedback('error', `${data.error} (${data.currentOccupancy}/${data.capacity}) — Use Force Override`);
+      } else {
+        showFeedback('error', data.error || 'Assignment failed');
+      }
+      return false;
+    }
+  } catch (e) {
+    showFeedback('error', 'Network error. Please try again.');
+    return false;
+  }
+}
+
+async function removePerson(roomId, name) {
+  if (!isAdmin) {
+    showFeedback('error', 'Please login as admin to remove people.');
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/remove`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roomId, name, password: adminPassword })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      await loadRooms();
+      showFeedback('success', `Removed ${name} from Room ${String(roomId).padStart(2, '0')}.`);
+    } else {
+      showFeedback('error', data.error || 'Removal failed');
+    }
+  } catch (e) {
+    showFeedback('error', 'Network error. Please try again.');
+  }
+}
+
+async function resetAllRooms() {
+  if (!isAdmin) {
+    showFeedback('error', 'Please login as admin to reset rooms.');
+    return;
+  }
+  if (!confirm('⚠️ Are you sure you want to reset ALL rooms?')) return;
+  try {
+    const res = await fetch(`${API_BASE}/api/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: adminPassword })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      await loadRooms();
+      showFeedback('success', 'All rooms have been reset.');
+    } else {
+      showFeedback('error', data.error || 'Reset failed');
+    }
+  } catch (e) {
+    showFeedback('error', 'Network error. Please try again.');
+  }
+}
+
+// ============================================================
+//  RENDER FUNCTIONS
+// ============================================================
+
+function renderStats() {
+  const total = 56;
+  const occupied = rooms.reduce((s, r) => s + r.occupants.length, 0);
+  const fullRooms = rooms.filter(r => r.occupants.length >= r.capacity).length;
+  const overRooms = rooms.filter(r => r.occupants.length > r.capacity).length;
+  const available = total - occupied;
+  
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-pill"><span class="num">${occupied}/${total}</span><span class="lbl">Beds</span></div>
+    <div class="stat-pill green"><span class="num">${available}</span><span class="lbl">Free</span></div>
+    <div class="stat-pill red"><span class="num">${fullRooms}</span><span class="lbl">Full</span></div>
+    <div class="stat-pill orange"><span class="num">${overRooms}</span><span class="lbl">Over</span></div>
+  `;
+}
+
+function renderRooms() {
+  const grid = document.getElementById('roomsGrid');
+  grid.innerHTML = '';
+  
+  if (!rooms || rooms.length === 0) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:40px;color:#4d6a78;">No rooms configured. Please check API connection.</p>';
+    return;
+  }
+  
+  rooms.forEach(room => {
+    const state = getRoomState(room);
+    const isOver = state === 'over';
+    const config = getRoomConfig(room.id);
+    const typeLabel = config ? config.type : 'Unknown';
+    const empty = Math.max(0, room.capacity - room.occupants.length);
+    
+    const card = document.createElement('div');
+    card.className = `room-card${isOver ? ' over-capacity' : ''}`;
+    card.dataset.state = state;
+    
+    let occupantsHtml = room.occupants.map((p, idx) => `
+      <div class="occupant-chip">
+        <span style="display:inline-block;width:18px;height:18px;border-radius:50%;background:${COLORS[idx % COLORS.length]};color:#fff;text-align:center;font-size:0.5rem;font-weight:700;line-height:18px;">${p.name.slice(0,2)}</span>
+        ${p.name}
+        <span class="sub">${p.role}</span>
+        ${isAdmin ? `<button class="remove-btn" onclick="removePerson(${room.id}, '${p.name}')">✕</button>` : ''}
+      </div>
+    `).join('');
+    
+    for (let i = 0; i < empty; i++) {
+      occupantsHtml += `<div class="slot-empty">Open bed</div>`;
+    }
+    
+    card.innerHTML = `
+      <div class="stripe"></div>
+      <div class="room-head">
+        <span style="font-size:0.5rem;text-transform:uppercase;color:#4d6a78;font-weight:700;">Room</span>
+        <span class="room-num">${String(room.id).padStart(2, '0')}</span>
+        <span class="room-type">${typeLabel}</span>
+        <span class="room-badge">${room.occupants.length}/${room.capacity}</span>
+        ${isOver ? '<span class="force-badge">OVER</span>' : ''}
+      </div>
+      <div class="occupant-list">${occupantsHtml}</div>
+      <div class="capacity-track"><div class="capacity-fill" style="width:${Math.min(100, (room.occupants.length/room.capacity)*100)}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderStudentSelect() {
+  const sel = document.getElementById('studentSelect');
+  const current = sel.value;
+  
+  const assignedNames = new Set();
+  rooms.forEach(r => r.occupants.forEach(p => assignedNames.add(p.name)));
+  const unassigned = peopleData.filter(p => !assignedNames.has(p.name));
+  
+  sel.innerHTML = '';
+  if (unassigned.length === 0) {
+    sel.innerHTML = '<option value="" disabled selected>All checked in</option>';
+    sel.disabled = true;
+    return;
+  }
+  sel.disabled = false;
+  sel.innerHTML = '<option value="" disabled selected>— Select your name —</option>';
+  unassigned.forEach(p => {
+    sel.innerHTML += `<option value="${p.name}">${p.name} (${p.gender}, ${p.type})</option>`;
+  });
+  if (current && unassigned.some(p => p.name === current)) sel.value = current;
+}
+
+function renderRoomSelect() {
+  const sel = document.getElementById('roomSelect');
+  const current = sel.value;
+  const person = selectedStudent ? getPerson(selectedStudent) : null;
+  
+  sel.innerHTML = '<option value="" disabled selected>— Choose room —</option>';
+  rooms.forEach(room => {
+    const full = room.occupants.length >= room.capacity;
+    const overrideActive = forceOverride && isAdmin;
+    let disabled = full && !overrideActive;
+    if (person && !full) disabled = !isEligible(room.id, person);
+    const label = `Room ${String(room.id).padStart(2, '0')} — ${room.occupants.length}/${room.capacity}${full ? ' (Full)' : ''}`;
+    sel.innerHTML += `<option value="${room.id}" ${disabled ? 'disabled' : ''}>${label}</option>`;
+  });
+  if (current) sel.value = current;
+}
+
+function showFeedback(type, msg) {
+  const fb = document.getElementById('feedback');
+  fb.className = `show ${type}`;
+  fb.textContent = msg;
+  clearTimeout(fb._timeout);
+  fb._timeout = setTimeout(() => fb.classList.remove('show'), 5000);
+}
+
+function renderAll() {
+  renderStats();
+  renderRooms();
+  renderStudentSelect();
+  renderRoomSelect();
+}
+
+// ============================================================
+//  EVENT LISTENERS
+// ============================================================
+
+// Admin toggle
+document.getElementById('adminToggle').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('adminPanel').classList.toggle('show');
+  this.classList.toggle('active');
+});
+
+document.getElementById('closeAdmin').addEventListener('click', function() {
+  document.getElementById('adminPanel').classList.remove('show');
+  document.getElementById('adminToggle').classList.remove('active');
+});
+
+// Login
+document.getElementById('loginBtn').addEventListener('click', function() {
+  const password = document.getElementById('adminPassword').value;
+  if (!password) {
+    showFeedback('error', 'Please enter the admin password.');
+    return;
+  }
+  if (password === ADMIN_PASSWORD) {
+    isAdmin = true;
+    adminPassword = password;
+    document.getElementById('adminStatus').textContent = '● Logged in as admin';
+    document.getElementById('adminStatus').className = 'status active';
+    document.getElementById('adminPassword').value = '';
+    showFeedback('success', 'Admin mode activated!');
+    renderRooms();
+    setTimeout(() => {
+      document.getElementById('adminPanel').classList.remove('show');
+      document.getElementById('adminToggle').classList.remove('active');
+    }, 1500);
+  } else {
+    showFeedback('error', 'Invalid password!');
+  }
+});
+
+// Reset
+document.getElementById('resetBtn').addEventListener('click', resetAllRooms);
+
+// Student selection
+document.getElementById('studentSelect').addEventListener('change', function() {
+  selectedStudent = this.value;
+  renderRoomSelect();
+});
+
+// Room selection
+document.getElementById('roomSelect').addEventListener('change', function() {
+  selectedRoom = this.value;
+});
+
+// Force override
+document.getElementById('forceOverride').addEventListener('change', function() {
+  forceOverride = this.checked;
+  if (forceOverride && !isAdmin) {
+    showFeedback('error', 'Force Override requires admin login');
+    this.checked = false;
+    forceOverride = false;
+    return;
+  }
+  renderRoomSelect();
+});
+
+// Assign button
+document.getElementById('assignBtn').addEventListener('click', async function() {
+  if (forceOverride && !isAdmin) {
+    showFeedback('error', 'Force Override requires admin login');
+    return;
+  }
+  if (!selectedStudent) { showFeedback('error', 'Please select your name.'); return; }
+  if (!selectedRoom) { showFeedback('error', 'Please choose a room.'); return; }
+  
+  const roomId = parseInt(selectedRoom, 10);
+  const person = getPerson(selectedStudent);
+  if (!person) { showFeedback('error', 'Participant not found.'); return; }
+  
+  const room = rooms.find(r => r.id === roomId);
+  if (!room) { showFeedback('error', 'Invalid room.'); return; }
+  if (room.occupants.some(p => p.name === selectedStudent)) {
+    showFeedback('error', `${selectedStudent} is already in this room.`);
+    return;
+  }
+  const already = rooms.some(r => r.occupants.some(p => p.name === selectedStudent));
+  if (already) {
+    showFeedback('error', `${selectedStudent} is already assigned to another room.`);
+    return;
+  }
+  
+  const ok = await assignPerson(roomId, person, forceOverride);
+  if (ok) {
+    selectedStudent = '';
+    selectedRoom = '';
+    document.getElementById('studentSelect').value = '';
+    document.getElementById('roomSelect').value = '';
+  }
+});
+
+// ============================================================
+//  INIT
+// ============================================================
+
+async function init() {
+  await loadConfig();
+  await loadPeople();
+  await loadRooms();
+}
+
+// Auto-refresh every 10 seconds
+init();
+setInterval(loadRooms, 10000);
+
+console.log('✅ GCC Room Division System loaded!');
+console.log('📋 Admin password: admin2026');
+</script>
 </body>
 </html>
