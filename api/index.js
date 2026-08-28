@@ -1,99 +1,48 @@
-import express from 'express';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const express = require('express');
+const cors = require('cors');
+const fs = require('fs');
+const path = require('path');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-const router = express.Router();
-
-// Admin password - CHANGE THIS!
+// Admin password
 const ADMIN_PASSWORD = 'admin2026';
 
-// Data files
-const DATA_DIR = path.join(__dirname, 'data');
-const ROOMS_FILE = path.join(DATA_DIR, 'rooms.json');
-const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
+// Use /tmp for Vercel
+const DATA_DIR = '/tmp/data';
+const DATA_FILE = path.join(DATA_DIR, 'rooms.json');
 
-// Ensure data directory exists
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
 
-// Default configuration
-const DEFAULT_CONFIG = {
-  totalParticipants: 56,
-  rooms: [
-    { id: 1, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
-    { id: 2, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
-    { id: 3, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
-    { id: 4, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
-    { id: 5, capacity: 5, type: 'Female Students (5 pax)', allowedGender: 'Female', allowedType: 'student' },
-    { id: 6, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
-    { id: 7, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
-    { id: 8, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
-    { id: 9, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
-    { id: 10, capacity: 4, type: 'Female Teachers', allowedGender: 'Female', allowedType: 'Teacher' },
-    { id: 11, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
-    { id: 12, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
-    { id: 13, capacity: 3, type: 'Female Teachers (3 pax)', allowedGender: 'Female', allowedType: 'Teacher' },
-    { id: 14, capacity: 4, type: 'Mixed Female', allowedGender: 'Female', allowedType: 'both' }
-  ]
-};
+// Room configuration
+const ROOM_CONFIG = [
+  { id: 1, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+  { id: 2, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+  { id: 3, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+  { id: 4, capacity: 4, type: 'Female Students', allowedGender: 'Female', allowedType: 'student' },
+  { id: 5, capacity: 5, type: 'Female Students (5 pax)', allowedGender: 'Female', allowedType: 'student' },
+  { id: 6, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+  { id: 7, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+  { id: 8, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+  { id: 9, capacity: 4, type: 'Male Students', allowedGender: 'Male', allowedType: 'student' },
+  { id: 10, capacity: 4, type: 'Female Teachers', allowedGender: 'Female', allowedType: 'Teacher' },
+  { id: 11, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
+  { id: 12, capacity: 4, type: 'Male Teachers', allowedGender: 'Male', allowedType: 'Teacher' },
+  { id: 13, capacity: 3, type: 'Female Teachers (3 pax)', allowedGender: 'Female', allowedType: 'Teacher' },
+  { id: 14, capacity: 4, type: 'Mixed Female', allowedGender: 'Female', allowedType: 'both' }
+];
 
-// Load or create config
-function loadConfig() {
-  try {
-    if (fs.existsSync(CONFIG_FILE)) {
-      const data = fs.readFileSync(CONFIG_FILE, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading config:', error);
-  }
-  fs.writeFileSync(CONFIG_FILE, JSON.stringify(DEFAULT_CONFIG, null, 2));
-  return DEFAULT_CONFIG;
-}
-
-function saveConfig(config) {
-  try {
-    fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Error saving config:', error);
-    return false;
-  }
-}
-
-// Load or create rooms data
-function loadRoomsData() {
-  try {
-    if (fs.existsSync(ROOMS_FILE)) {
-      const data = fs.readFileSync(ROOMS_FILE, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Error loading rooms data:', error);
-  }
-  const config = loadConfig();
-  const initialRooms = config.rooms.map(roomConfig => ({
-    id: roomConfig.id,
+if (!fs.existsSync(DATA_FILE)) {
+  const initialRooms = ROOM_CONFIG.map(config => ({
+    id: config.id,
     occupants: [],
-    capacity: roomConfig.capacity
+    capacity: config.capacity
   }));
-  fs.writeFileSync(ROOMS_FILE, JSON.stringify(initialRooms, null, 2));
-  return initialRooms;
-}
-
-function saveRoomsData(rooms) {
-  try {
-    fs.writeFileSync(ROOMS_FILE, JSON.stringify(rooms, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Error saving rooms data:', error);
-    return false;
-  }
+  fs.writeFileSync(DATA_FILE, JSON.stringify(initialRooms, null, 2));
 }
 
 // People data
@@ -158,111 +107,61 @@ const peopleData = [
 ];
 
 function readRooms() {
-  return loadRoomsData();
+  try {
+    const data = fs.readFileSync(DATA_FILE, 'utf8');
+    return JSON.parse(data);
+  } catch (error) {
+    return ROOM_CONFIG.map(config => ({
+      id: config.id,
+      occupants: [],
+      capacity: config.capacity
+    }));
+  }
 }
 
 function writeRooms(rooms) {
-  return saveRoomsData(rooms);
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(rooms, null, 2));
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function getRoomConfig(roomId) {
-  const config = loadConfig();
-  return config.rooms.find(r => r.id === roomId);
+  return ROOM_CONFIG.find(r => r.id === roomId);
 }
 
 function checkEligibility(roomId, person, rooms, forceOverride = false) {
   const room = rooms.find(r => r.id === roomId);
   const config = getRoomConfig(roomId);
   if (!room || !config) return false;
-
   const { gender, type } = person;
-
+  
   if (config.allowedType === 'both') {
     if (gender !== 'Female') return false;
   } else {
     if (gender !== config.allowedGender) return false;
     if (type !== config.allowedType) return false;
   }
-
   if (forceOverride) return true;
-
   return room.occupants.length < room.capacity;
 }
 
-// ===== API ROUTES =====
-
-// Get all rooms
-router.get('/api/rooms', (req, res) => {
-  const rooms = readRooms();
-  res.json(rooms);
+// API Routes
+app.get('/api/room-division/api/rooms', (req, res) => {
+  res.json(readRooms());
 });
 
-// Get people data
-router.get('/api/people', (req, res) => {
+app.get('/api/room-division/api/people', (req, res) => {
   res.json(peopleData);
 });
 
-// Get room config
-router.get('/api/config', (req, res) => {
-  const config = loadConfig();
-  res.json(config);
+app.get('/api/room-division/api/config', (req, res) => {
+  res.json({ rooms: ROOM_CONFIG, totalParticipants: 56 });
 });
 
-// Update room configuration (admin only)
-router.post('/api/config/update', (req, res) => {
-  const { password, config } = req.body;
-  if (password !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Invalid admin password' });
-  }
-
-  if (!config || !config.rooms || !Array.isArray(config.rooms)) {
-    return res.status(400).json({ error: 'Invalid configuration' });
-  }
-
-  for (const room of config.rooms) {
-    if (!room.id || !room.capacity || !room.type || !room.allowedGender || !room.allowedType) {
-      return res.status(400).json({ error: 'Each room must have id, capacity, type, allowedGender, and allowedType' });
-    }
-  }
-
-  if (saveConfig(config)) {
-    const rooms = readRooms();
-    const currentRoomIds = rooms.map(r => r.id);
-    const configRoomIds = config.rooms.map(r => r.id);
-    
-    for (const roomConfig of config.rooms) {
-      if (!currentRoomIds.includes(roomConfig.id)) {
-        rooms.push({
-          id: roomConfig.id,
-          occupants: [],
-          capacity: roomConfig.capacity
-        });
-      } else {
-        const existingRoom = rooms.find(r => r.id === roomConfig.id);
-        if (existingRoom) {
-          existingRoom.capacity = roomConfig.capacity;
-        }
-      }
-    }
-    
-    for (const roomId of currentRoomIds) {
-      if (!configRoomIds.includes(roomId)) {
-        const index = rooms.findIndex(r => r.id === roomId);
-        if (index !== -1) {
-          rooms.splice(index, 1);
-        }
-      }
-    }
-    
-    saveRoomsData(rooms);
-    res.json({ success: true, config });
-  } else {
-    res.status(500).json({ error: 'Failed to save configuration' });
-  }
-});
-
-// Assign person to room
-router.post('/api/assign', (req, res) => {
+app.post('/api/room-division/api/assign', (req, res) => {
   const { roomId, person, forceOverride = false } = req.body;
   if (!roomId || !person || !person.name) {
     return res.status(400).json({ error: 'Missing required fields' });
@@ -295,8 +194,7 @@ router.post('/api/assign', (req, res) => {
   }
 });
 
-// Remove person from room
-router.delete('/api/remove', (req, res) => {
+app.delete('/api/room-division/api/remove', (req, res) => {
   const { roomId, name, password } = req.body;
   if (!roomId || !name) return res.status(400).json({ error: 'Missing fields' });
   if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid admin password' });
@@ -316,16 +214,14 @@ router.delete('/api/remove', (req, res) => {
   }
 });
 
-// Reset all rooms
-router.post('/api/reset', (req, res) => {
+app.post('/api/room-division/api/reset', (req, res) => {
   const { password } = req.body;
   if (password !== ADMIN_PASSWORD) return res.status(401).json({ error: 'Invalid password' });
 
-  const config = loadConfig();
-  const emptyRooms = config.rooms.map(roomConfig => ({
-    id: roomConfig.id,
+  const emptyRooms = ROOM_CONFIG.map(config => ({
+    id: config.id,
     occupants: [],
-    capacity: roomConfig.capacity
+    capacity: config.capacity
   }));
   if (writeRooms(emptyRooms)) {
     res.json({ success: true });
@@ -334,4 +230,5 @@ router.post('/api/reset', (req, res) => {
   }
 });
 
-export default router;
+// Export for Vercel
+module.exports = app;
